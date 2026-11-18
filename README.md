@@ -407,3 +407,20 @@ No criterion is currently missed, in either run, so there is nothing to fix for 
 ---
 
 📖 **How to run this project: [RUNNING.md](RUNNING.md)**
+
+---
+
+## Capstone
+
+**What This Extends**
+
+FitFindr (Project 2: the three-tool agent with `search_listings` on MCP, from units 3 and 4). What's new is an operational layer around the existing agent: the `serve.py` HTTP wrapper gets structured logging and timing, a documented single-command local run, and a measured cost per run. The agent logic in `agent.py` and `tools.py` is not changed by this unit's build.
+
+**The Shape**
+
+Shape A: deploy and instrument. I'm adding a JSON-lines request log to `serve.py` (timestamp, query, outcome, error, per-run duration, model calls and tokens), a run path on Path B (local with logs), and a cost measurement taken from that log. Failed and rejected requests also leave a record.
+
+Out of scope, considered and cut:
+- No change to the planning loop, the three tools, or the listings data. The ranking weakness noted in unit 4 stays as it is.
+- No hosted deployment (Path A). The MCP call spawns a subprocess per tool call and the host has 512 MB, so I'm running locally with a committed log.
+- No new tool, no retry-with-looser-constraints, and no web UI.
