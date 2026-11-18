@@ -424,3 +424,32 @@ Out of scope, considered and cut:
 - No change to the planning loop, the three tools, or the listings data. The ranking weakness noted in unit 4 stays as it is.
 - No hosted deployment (Path A). The MCP call spawns a subprocess per tool call and the host has 512 MB, so I'm running locally with a committed log.
 - No new tool, no retry-with-looser-constraints, and no web UI.
+
+**Running It**
+
+Path B, local with logs. Start command and environment are in [RUNNING.md](RUNNING.md): `AI201_CACHE=0 python serve.py`.
+
+**Instrumentation**
+
+`serve.py::ask` appends one JSON line per request to `logs/requests.jsonl`: `ts`, `id`, `query`, `http_status`, `outcome` (completed / stopped / rejected / crashed), `error`, `output`, `found_item`, `duration_ms` (agent run only, excluding lock wait), `model_calls`, `tokens`, `waited_ms`. Below are all 12 entries from the measurement session (`output` truncated to 70 characters here; the full text is in `logs/requests.jsonl`). The failed paths are the `rejected` entry (empty body, 400) and the `stopped` entries (no listings matched). I did not trigger a `crashed` entry.
+
+```json
+{"ts": "2026-11-18T23:14:06.003+00:00", "id": "74aab0c7", "query": "vintage graphic tee under $30", "http_status": 200, "outcome": "completed", "error": null, "output": "Obsessed with how perfectly worn-in this vintage band tee in faded gre…", "found_item": "Vintage Band Tee — Faded Grey", "duration_ms": 3717, "model_calls": 2, "tokens": 717, "waited_ms": 0}
+{"ts": "2026-11-18T23:14:08.560+00:00", "id": "c597d299", "query": "black boots under $70", "http_status": 200, "outcome": "completed", "error": null, "output": "Obsessed with these shiny black biker shorts I just listed on Depop fo…", "found_item": "Biker Shorts — Black, Shiny", "duration_ms": 2555, "model_calls": 2, "tokens": 760, "waited_ms": 0}
+{"ts": "2026-11-18T23:14:11.081+00:00", "id": "4332b651", "query": "denim jacket size M", "http_status": 200, "outcome": "completed", "error": null, "output": "Obsessed with this studded medium wash denim vest, but my closet is of…", "found_item": "Denim Vest — Medium Wash, Studded", "duration_ms": 2518, "model_calls": 2, "tokens": 697, "waited_ms": 0}
+{"ts": "2026-11-18T23:14:13.336+00:00", "id": "c8d36238", "query": "floral summer dress under $40", "http_status": 200, "outcome": "completed", "error": null, "output": "still not over finding this 90s floral midi slip dress 😭 it’s giving t…", "found_item": "90s Silk Slip Dress — Floral, Midi Length", "duration_ms": 2253, "model_calls": 2, "tokens": 803, "waited_ms": 0}
+{"ts": "2026-11-18T23:14:15.550+00:00", "id": "0f18e9ef", "query": "leather belt", "http_status": 200, "outcome": "completed", "error": null, "output": "Obsessed with this braided brown leather belt I just scored on thredUp…", "found_item": "Leather Belt — Brown, Braided", "duration_ms": 2212, "model_calls": 2, "tokens": 604, "waited_ms": 0}
+{"ts": "2026-11-18T23:14:15.923+00:00", "id": "a25386cc", "query": "wool sweater size L under $50", "http_status": 200, "outcome": "stopped", "error": "Nothing matched \"wool sweater\", size L, under $50. Try to use fewer or different keywords (e.g. just the item type, like \"jacket\"), or drop the size or try a neighbouring one, or raise the $50 budget.", "output": "Nothing matched \"wool sweater\", size L, under $50. Try to use fewer or…", "found_item": null, "duration_ms": 370, "model_calls": 0, "tokens": 0, "waited_ms": 0}
+{"ts": "2026-11-18T23:14:18.122+00:00", "id": "4f7fd1a8", "query": "sneakers size 9", "http_status": 200, "outcome": "completed", "error": null, "output": "Found these off-white low-top canvas sneakers on Poshmark for just $20…", "found_item": "Low-Top Canvas Sneakers — Off-White", "duration_ms": 2198, "model_calls": 2, "tokens": 689, "waited_ms": 0}
+{"ts": "2026-11-18T23:14:20.290+00:00", "id": "41cc1f16", "query": "corduroy pants", "http_status": 200, "outcome": "completed", "error": null, "output": "Still not over finding these rust corduroy wide-leg pants on Depop for…", "found_item": "Corduroy Wide-Leg Pants — Rust", "duration_ms": 2166, "model_calls": 2, "tokens": 734, "waited_ms": 0}
+{"ts": "2026-11-18T23:15:04.547+00:00", "id": "5f017535", "query": "silk scarf", "http_status": 200, "outcome": "completed", "error": null, "output": "Still can’t believe I scored this sage green silk button-down on Depop…", "found_item": "Silk Button-Down — Sage Green", "duration_ms": 44253, "model_calls": 2, "tokens": 949, "waited_ms": 0}
+{"ts": "2026-11-18T23:15:05.055+00:00", "id": "5cc51be7", "query": "linen shirt size S", "http_status": 200, "outcome": "stopped", "error": "Nothing matched \"linen shirt\", size S. Try to use fewer or different keywords (e.g. just the item type, like \"jacket\"), or drop the size or try a neighbouring one.", "output": "Nothing matched \"linen shirt\", size S. Try to use fewer or different k…", "found_item": null, "duration_ms": 500, "model_calls": 0, "tokens": 0, "waited_ms": 0}
+{"ts": "2026-11-18T23:15:05.056+00:00", "id": "926293a6", "query": null, "http_status": 400, "outcome": "rejected", "error": "missing or empty 'query'", "output": "", "duration_ms": 0, "model_calls": 0, "tokens": 0, "waited_ms": 0}
+{"ts": "2026-11-18T23:15:05.378+00:00", "id": "faccf4d3", "query": "designer ballgown size XXS under $5", "http_status": 200, "outcome": "stopped", "error": "Nothing matched \"designer ballgown\", size XXS, under $5. Try to use fewer or different keywords (e.g. just the item type, like \"jacket\"), or drop the size or try a neighbouring one, or raise the $5 budget.", "output": "Nothing matched \"designer ballgown\", size XXS, under $5. Try to use fe…", "found_item": null, "duration_ms": 322, "model_calls": 0, "tokens": 0, "waited_ms": 0}
+```
+
+Gap: requests to unknown paths (404) or wrong methods (405) never reach `ask()`, so they are not logged.
+
+**What It Costs**
+
+Measured from the log above: the 8 completed runs averaged 744 tokens and 2.0 model calls each (range 604-949 tokens). Duration averaged 7.7 s but that is skewed by one 44 s run (likely rate-limit retry waiting in `generate.py`); the other seven ran 2.2-3.7 s. Measured by sending 10 different queries through the Flask test client with the cache off and reading `generate.token_counts()` before and after each run. Two of the ten matched nothing and cost 0 tokens. I did not convert tokens to dollars, since I did not look up the price. For 100 runs a day: 100 x 744 = about 74,400 tokens a day.
