@@ -414,7 +414,7 @@ No criterion is currently missed, in either run, so there is nothing to fix for 
 
 **What This Extends**
 
-FitFindr (Project 2: the three-tool agent with `search_listings` on MCP, from units 3 and 4). What's new is an operational layer around the existing agent: the `serve.py` HTTP wrapper gets structured logging and timing, a documented single-command local run, and a measured cost per run. The agent logic in `agent.py` and `tools.py` is not changed by this unit's build.
+FitFindr (Project 2: the three-tool agent with `search_listings` on MCP, from units 3 and 4). What's new is an operational layer around the existing agent: the `serve.py` HTTP wrapper gets structured logging and timing, a documented single-command local run, and a measured cost per run. The agent logic is unchanged except for one flag added after testing (`agent.py` sets `session["model_unavailable"] = True` when the model can't be reached; see The Improvement). `tools.py` is untouched.
 
 **The Shape**
 
@@ -431,25 +431,116 @@ Path B, local with logs. Start command and environment are in [RUNNING.md](RUNNI
 
 **Instrumentation**
 
-`serve.py::ask` appends one JSON line per request to `logs/requests.jsonl`: `ts`, `id`, `query`, `http_status`, `outcome` (completed / stopped / rejected / crashed), `error`, `output`, `found_item`, `duration_ms` (agent run only, excluding lock wait), `model_calls`, `tokens`, `waited_ms`. Below are all 12 entries from the measurement session (`output` truncated to 70 characters here; the full text is in `logs/requests.jsonl`). The failed paths are the `rejected` entry (empty body, 400) and the `stopped` entries (no listings matched). I did not trigger a `crashed` entry.
+`serve.py::ask` appends one JSON line per request to `logs/requests.jsonl`: `ts`, `id`, `query`, `http_status`, `outcome` (completed / stopped / rejected / crashed), `error`, `output`, `found_item`, `duration_ms` (agent run only, excluding lock wait), `model_calls`, `tokens`, `waited_ms`. Below are all 12 entries from the measurement session (`output` truncated to 70 characters here; the full text is in `logs/requests.jsonl`). The failed paths are the `rejected` entry (empty body, 400) and the `stopped` entries (no listings matched). The two entries after the 12 (a 404 and two `crashed`) were produced later, after the fix described in The Improvement.
 
 ```json
 {"ts": "2026-11-18T23:14:06.003+00:00", "id": "74aab0c7", "query": "vintage graphic tee under $30", "http_status": 200, "outcome": "completed", "error": null, "output": "Obsessed with how perfectly worn-in this vintage band tee in faded gre…", "found_item": "Vintage Band Tee — Faded Grey", "duration_ms": 3717, "model_calls": 2, "tokens": 717, "waited_ms": 0}
+
 {"ts": "2026-11-18T23:14:08.560+00:00", "id": "c597d299", "query": "black boots under $70", "http_status": 200, "outcome": "completed", "error": null, "output": "Obsessed with these shiny black biker shorts I just listed on Depop fo…", "found_item": "Biker Shorts — Black, Shiny", "duration_ms": 2555, "model_calls": 2, "tokens": 760, "waited_ms": 0}
+
 {"ts": "2026-11-18T23:14:11.081+00:00", "id": "4332b651", "query": "denim jacket size M", "http_status": 200, "outcome": "completed", "error": null, "output": "Obsessed with this studded medium wash denim vest, but my closet is of…", "found_item": "Denim Vest — Medium Wash, Studded", "duration_ms": 2518, "model_calls": 2, "tokens": 697, "waited_ms": 0}
+
 {"ts": "2026-11-18T23:14:13.336+00:00", "id": "c8d36238", "query": "floral summer dress under $40", "http_status": 200, "outcome": "completed", "error": null, "output": "still not over finding this 90s floral midi slip dress 😭 it’s giving t…", "found_item": "90s Silk Slip Dress — Floral, Midi Length", "duration_ms": 2253, "model_calls": 2, "tokens": 803, "waited_ms": 0}
+
 {"ts": "2026-11-18T23:14:15.550+00:00", "id": "0f18e9ef", "query": "leather belt", "http_status": 200, "outcome": "completed", "error": null, "output": "Obsessed with this braided brown leather belt I just scored on thredUp…", "found_item": "Leather Belt — Brown, Braided", "duration_ms": 2212, "model_calls": 2, "tokens": 604, "waited_ms": 0}
+
 {"ts": "2026-11-18T23:14:15.923+00:00", "id": "a25386cc", "query": "wool sweater size L under $50", "http_status": 200, "outcome": "stopped", "error": "Nothing matched \"wool sweater\", size L, under $50. Try to use fewer or different keywords (e.g. just the item type, like \"jacket\"), or drop the size or try a neighbouring one, or raise the $50 budget.", "output": "Nothing matched \"wool sweater\", size L, under $50. Try to use fewer or…", "found_item": null, "duration_ms": 370, "model_calls": 0, "tokens": 0, "waited_ms": 0}
+
 {"ts": "2026-11-18T23:14:18.122+00:00", "id": "4f7fd1a8", "query": "sneakers size 9", "http_status": 200, "outcome": "completed", "error": null, "output": "Found these off-white low-top canvas sneakers on Poshmark for just $20…", "found_item": "Low-Top Canvas Sneakers — Off-White", "duration_ms": 2198, "model_calls": 2, "tokens": 689, "waited_ms": 0}
+
 {"ts": "2026-11-18T23:14:20.290+00:00", "id": "41cc1f16", "query": "corduroy pants", "http_status": 200, "outcome": "completed", "error": null, "output": "Still not over finding these rust corduroy wide-leg pants on Depop for…", "found_item": "Corduroy Wide-Leg Pants — Rust", "duration_ms": 2166, "model_calls": 2, "tokens": 734, "waited_ms": 0}
+
 {"ts": "2026-11-18T23:15:04.547+00:00", "id": "5f017535", "query": "silk scarf", "http_status": 200, "outcome": "completed", "error": null, "output": "Still can’t believe I scored this sage green silk button-down on Depop…", "found_item": "Silk Button-Down — Sage Green", "duration_ms": 44253, "model_calls": 2, "tokens": 949, "waited_ms": 0}
+
 {"ts": "2026-11-18T23:15:05.055+00:00", "id": "5cc51be7", "query": "linen shirt size S", "http_status": 200, "outcome": "stopped", "error": "Nothing matched \"linen shirt\", size S. Try to use fewer or different keywords (e.g. just the item type, like \"jacket\"), or drop the size or try a neighbouring one.", "output": "Nothing matched \"linen shirt\", size S. Try to use fewer or different k…", "found_item": null, "duration_ms": 500, "model_calls": 0, "tokens": 0, "waited_ms": 0}
+
 {"ts": "2026-11-18T23:15:05.056+00:00", "id": "926293a6", "query": null, "http_status": 400, "outcome": "rejected", "error": "missing or empty 'query'", "output": "", "duration_ms": 0, "model_calls": 0, "tokens": 0, "waited_ms": 0}
 {"ts": "2026-11-18T23:15:05.378+00:00", "id": "faccf4d3", "query": "designer ballgown size XXS under $5", "http_status": 200, "outcome": "stopped", "error": "Nothing matched \"designer ballgown\", size XXS, under $5. Try to use fewer or different keywords (e.g. just the item type, like \"jacket\"), or drop the size or try a neighbouring one, or raise the $5 budget.", "output": "Nothing matched \"designer ballgown\", size XXS, under $5. Try to use fe…", "found_item": null, "duration_ms": 322, "model_calls": 0, "tokens": 0, "waited_ms": 0}
 ```
 
-Gap: requests to unknown paths (404) or wrong methods (405) never reach `ask()`, so they are not logged.
+Entries added after the fix (a 404, and the two kinds of `crashed`: a deliberately invalid API key, and a real provider 503 that happened during a trial; `error` truncated here):
+
+```json
+{"ts": "2026-11-19T10:29:31.584+00:00", "id": "63e72c57", "query": null, "http_status": 404, "outcome": "rejected", "error": "404 Not Found: GET /nope", "output": null, "duration_ms": 0, "model_calls": 0, "tokens": 0, "waited_ms": 0}
+{"ts": "2026-11-19T10:32:41.208+00:00", "id": "dc6a9ecf", "query": "leather belt", "http_status": 500, "outcome": "crashed", "error": "ModelUnavailable: The model couldn't be reached, so no outfit or fit card was made. The model rejected your API key. Che…", "output": null, "duration_ms": 529, "model_calls": 1, "tokens": 0, "waited_ms": 0}
+{"ts": "2026-11-19T10:33:13.894+00:00", "id": "25250376", "query": "corduroy pants", "http_status": 500, "outcome": "crashed", "error": "ModelUnavailable: The model couldn't be reached, so no outfit or fit card was made. Couldn't reach the model: 503 UNAVAI…", "output": null, "duration_ms": 604, "model_calls": 1, "tokens": 0, "waited_ms": 0}
+```
+
+Before the fix, requests to unknown paths (404) or wrong methods (405) never reached `ask()` and were not logged, and a model outage was logged as `stopped` with a 200.
 
 **What It Costs**
 
-Measured from the log above: the 8 completed runs averaged 744 tokens and 2.0 model calls each (range 604-949 tokens). Duration averaged 7.7 s but that is skewed by one 44 s run (likely rate-limit retry waiting in `generate.py`); the other seven ran 2.2-3.7 s. Measured by sending 10 different queries through the Flask test client with the cache off and reading `generate.token_counts()` before and after each run. Two of the ten matched nothing and cost 0 tokens. I did not convert tokens to dollars, since I did not look up the price. For 100 runs a day: 100 x 744 = about 74,400 tokens a day.
+Measured from the log above: the 8 completed runs averaged 744 tokens and 2.0 model calls each (range 604-949 tokens). Duration averaged 7.7 s but that is skewed by one 44 s run (likely rate-limit retry waiting in `generate.py`); the other seven ran 2.2-3.7 s. Measured by sending 10 different queries through the Flask test client with the cache off and reading `generate.token_counts()` before and after each run. Two of the ten matched nothing and cost 0 tokens. I did not convert tokens to dollars, since I did not look up the price. Cross-check from the capstone trials: the 47 `completed` runs across the six trials averaged 740 tokens, with a constant 2 model calls each, so tokens per run are stable (744 vs 740). Seconds are not: the baseline session's median was 2.4 s per run, and the trial day's median was 9.4 s (mean 10.5 s), because the Gemini calls got slower that day (see Run Log and Verdicts, criterion 4). Per-run cost, then: about 740 tokens and 2 model calls, taking 2.4 to 10.5 s depending on provider load.
+
+For 100 people a day, at one run each, using 740 tokens and 2 calls: 100 x 740 = 74,000 tokens a day, 100 x 2 = 200 model calls a day (well under the 15-per-minute limit if spread out, but the one-at-a-time lock means 100 runs take 100 x 2.4 s = 4 min of compute on a fast day, or 100 x 10.5 s = about 17.5 min on a slow one). I did not look up the price, so I have not turned the tokens into dollars.
+
+**Run Log and Verdicts**
+
+Run by `capstone_trials.py` (starts its own copies of `serve.py` with the cache off, sends real HTTP requests, reads `logs/requests.jsonl` back). Raw results: `results/capstone_before.json` and `results/capstone_after.json`. A first attempt at the "before" run had a bug in my script (`ulimit -f` also capped the server's stderr file and caused false 500s in criterion 5), so I fixed the script and re-ran everything; the tables are from the re-run. Criterion 4 limit X = 4533 ms (derived in `criteria.md` before any trial).
+
+Before the fix (commit `a9977b2`):
+
+| Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
+|---|---|---|---|---|---|
+| 1. 404, 405 and `{}` each leave one `rejected` line | 3 of 3 | 1/3 | 1/3 | 1/3 | MISSED |
+| 2. Each outcome has exactly the documented fields | 4 of 4 | 3/4 | 3/4 | 3/4 | MISSED |
+| 3. Outcome sets status code and `model_calls` | 4 of 4 | 3/4 | 3/4 | 3/4 | MISSED |
+| 4. At least 8 of 10 completed runs at or under 4533 ms | 8 of 10 | 0/10 | 0/10 | 0/10 | MISSED |
+| 5. Unwritable log still gives 200 and a stderr message | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+
+Pasted output (before), from `capstone_trials.py` run 1:
+- Criterion 1 (`serve.py::ask` only logs inside the route): `GET /nope` returned 404 with 0 new log lines; `GET /ask` returned 405 with 0 new lines; `POST /ask {}` returned 400 and wrote `{"ts": "2026-11-19T10:11:39.470+00:00", "id": "39c645ab", "query": null, "http_status": 400, "outcome": "rejected", "error": "missing or empty 'query'", "output": null, "duration_ms": 0, "model_calls": 0, "tokens": 0, "waited_ms": 0}`.
+- Criteria 2 and 3 (`serve.py::ask`, outcome rule `session.get("error")`): with an invalid API key the log line was `outcome: stopped`, `http_status: 200`, `model_calls: 1`, `tokens: 0`, `found_item: "Leather Belt — Brown, Braided"`, and the error text "The model rejected your API key…".
+- Criterion 4 (`serve.py::ask`, `duration_ms`): run 1 durations, sorted: 5065, 5932, 6045, 6303, 6331, 7941, 9139, 10424, 10598, 14895.
+- Criterion 5 (`serve.py::_log`): `{'status': 200, 'stderr_new': 1, 'log_lines_added': 0, 'pass': True}` for all five requests, with stderr `[serve] could not write log: [Errno 27] File too large`.
+
+Diagnoses:
+- **Criterion 1.** Flask raises 404 and 405 in its router before `ask()` runs, and `_log` was only called inside `ask()`. The stage is the routing layer; the mechanism is that nothing there logs.
+- **Criteria 2 and 3 (one cause).** `agent.py` catches `ModelUnavailable` and returns a session with an `error` string. `serve.py` labelled any session with an error as `stopped` with HTTP 200, so a bad key looked identical to "nothing matched". The stage is the boundary between `agent.py` and `serve.py`; the mechanism is that a model outage and an empty search shared one code path. So `crashed` could never be triggered by a model failure, which the criteria expected.
+- **Criterion 4.** All 30 runs took 5.1 to 18.3 s, against the baseline of 2.2-3.7 s. The stage is the model call in `generate.py`. I timed trivial one-line prompts directly with the cache off and got 3.5-7.3 s per call, so the slowdown is provider latency, not rate limiting (4 calls in the test) and not my code. My X was derived from a faster session, so the target was too tight for conditions on the test day. This stays a miss: the target is not changed.
+- **Pattern.** Criteria 2 and 3 are one problem with two symptoms. Criteria 1 is a separate gap in the same layer (what gets logged). Criterion 4 is outside my code.
+
+**The Improvement**
+
+Two small changes in the logging layer, one for each diagnosis (commit `27c193d`), then the full set re-run (commit `b9ffd6d`):
+1. `serve.py`: an `errorhandler(HTTPException)` logs 404 and 405 as `rejected` with their real status code and the same fields as other rejected lines (a client mistake, not a crash).
+2. `agent.py` sets `session["model_unavailable"] = True` where it catches `ModelUnavailable`, and `serve.py` treats that as `crashed` with HTTP 500 and the provider's message, instead of `stopped` with 200.
+
+After the fix:
+
+| Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
+|---|---|---|---|---|---|
+| 1. 404, 405 and `{}` each leave one `rejected` line | 3 of 3 | 3/3 | 3/3 | 3/3 | MET |
+| 2. Each outcome has exactly the documented fields | 4 of 4 | 4/4 | 4/4 | 3/4 | MISSED |
+| 3. Outcome sets status code and `model_calls` | 4 of 4 | 4/4 | 4/4 | 3/4 | MISSED |
+| 4. At least 8 of 10 completed runs at or under 4533 ms | 8 of 10 | 0/10 | 0/10 | 1/10 | MISSED |
+| 5. Unwritable log still gives 200 and a stderr message | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+
+Pasted output (after), `capstone_trials.py` run 1: 
+- `GET /nope` gave 404 and one new line with `outcome: rejected`, `http_status: 404`; `GET /ask` gave 405 and one `rejected` line; the invalid-key request now logs `{"http_status": 500, "outcome": "crashed", "output": null, "model_calls": 1, "tokens": 0, ...}` with no `found_item` field.
+
+Pasted output (after), `capstone_trials.py` run 1, continued:
+- Criteria 2 and 3 (`serve.py::ask`): `{'outcome': 'crashed', 'got_outcome': 'crashed', 'missing': [], 'extra': [], 'pass': True}` and `{'outcome': 'crashed', 'http_status': 500, 'model_calls': 1, 'pass': True}`. In run 3 the failing line was `{'outcome': 'completed', 'got_outcome': 'crashed', 'missing': ['found_item'], 'extra': [], 'pass': False}` (the Gemini 503 described below).
+- Criterion 4 (`serve.py::ask`, `duration_ms`): 5 of the 10 requests were `completed`; all 10 durations, sorted: 903, 977, 3096, 4567, 7943, 8818, 9413, 10556, 11143, 15512 ms (the five `crashed` requests were 903, 977, 3096, 4567 and 10556 ms; the five `completed` ones were 7943, 8818, 9413, 11143 and 15512 ms). Completed runs at or under 4533 ms: 0.
+- Criterion 5 (`serve.py::_log`): `{'status': 200, 'stderr_new': 1, 'log_lines_added': 0, 'pass': True}` for all five requests, with stderr `[serve] could not write log: [Errno 27] File too large`.
+
+Did it help? Yes for criteria 1 (1/3 to 3/3 in every trial), and for 2 and 3 in trials 1 and 2 (3/4 to 4/4). The original agent still passes `python test.py` (10 passed). Criterion 5 and the rest of the system did not change.
+
+Criteria 2 and 3 still missed in trial 3, and this is not a bug in the fix. During that trial Gemini returned `503 UNAVAILABLE: This model is currently experiencing high demand` to the request that the test expected to be `completed`. The server correctly logged it as `crashed` with a 500 (the log line is pasted under Instrumentation), so the check for a `completed` line failed. The stage is the Gemini API call; the mechanism is an uncontrolled provider outage during the test. The same 503s hit several criterion 4 requests (only 5, 7 and 5 of the 10 were `completed` in the three after trials), which is why criterion 4 stayed at 0, 0 and 1 of 10.
+
+One trade-off: a model outage now returns 500 where it used to return 200. That is more honest (a caller can tell the service failed), but any client that relied on the 200 would see a change.
+
+I did not revise any criterion. A case can be made that criteria 2 and 3 have a measurement flaw (the `completed` request depends on a live provider), but I kept the verdicts as measured and wrote the fix under What's Still Broken.
+
+**What's Still Broken**
+
+- **Criteria 2 and 3 (trial 3 only).** The `completed` case depends on the live Gemini API. What I'd do: stub the model call for that case so the test can always produce `completed`, and measure provider availability separately. Why I stopped: the stub is a test-design change, and the verdict as measured is already clear. I'd also consider 502 or 503 with a `Retry-After` header for provider outages instead of a plain 500.
+- **Criterion 4.** All 30 runs were slower than the baseline. What I'd do: first add per-stage timing to the log (tool time, each model call, rate-limit sleep), because today I can't see where the time goes without a separate test; then re-derive X from several sessions and add retries or a timeout for slow calls. Why I stopped: the cause is the provider's latency, which I can't fix from this layer.
+- **Targets I'd tighten if everything had passed.** Criterion 5 only covers a size limit and a permission-style `OSError`, not a real full disk or a non-`OSError` serialization failure.
+- **Logging contains user queries and outputs in plain text.** For a real service I would need a retention rule and consent. Here it is only my own test queries.
+- **The one thing I'd do first with another unit:** add per-stage timing to the log. It would turn criterion 4 from "slow, cause unknown" into a diagnosis, and it makes every later latency question cheap.
+
+**How I Used AI**
+
+1. **Reviewing criteria.** I drafted the ideas for my criteria myself, then pasted them to Claude and asked it to run the self-check (how to test each, whether two people would score it the same way, what would make it fail). It pointed out that my first criterion asserted a hole (404/405 never logged), which tests that the system is incomplete. I decided I wanted those requests logged and rewrote it as criterion 1, with status 404/405 and outcome `rejected`. It also warned that a latency limit should come from enough baseline data and only from `completed` runs, which became criterion 4 (X = Q3 + 1.5 x IQR = 4533 ms). I then asked Claude to write up the final five from my decisions, and I committed them before any results, so the wording is Claude's draft of my decisions. I decided the targets, the log-write case and the 200-not-500 design.
+2. **Diagnosing the test run.** My first "before" run showed false 500s in criterion 5 and Claude found the cause (`ulimit -f` also limited the server's stderr file), so I re-ran with stderr through a pipe. I also asked whether the trial 3 miss was a design problem; it explained that the server had classified the Gemini 503 correctly as `crashed` and that my test expected `completed`, and I chose to leave the verdicts as MISSED and write the stub idea under What's Still Broken instead of revising the criteria.

@@ -258,9 +258,12 @@ units.
 - No local model files (the model is called over the API). 
 - Dependencies are pinned in `requirements.txt`.
 
+
 ---
 
 **How to Set Up Environment:**
+
+Bash (macOS / Linux):
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
@@ -268,44 +271,235 @@ cp .env.example .env            # paste your GEMINI_API_KEY into .env
 python test.py                  # should end "10 passed"
 ```
 
----
-
-**How to Run the App:**
-```bash
-AI201_CACHE=0 \
-PORT=5001 \
-python serve.py   # the one start command; listens on :5001
+PowerShell (Windows):
+```powershell
+py -3.12 -m venv .venv; .\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+Copy-Item .env.example .env     # paste your GEMINI_API_KEY into .env
+python test.py                  # should end "10 passed"
 ```
 
-NOTE: 
-- I switched from PORT 5000 instead of 5001 because the Macbook Airplay is occupying PORT 5000.
+NOTE:
+- If activation is blocked, run `Set-ExecutionPolicy -Scope Process Bypass` first.
 
 ---
 
-**How to Use the App:**
+**How to Run the App (Terminal 1):**
 
-1. Check Server's Health
+Bash:
+```bash
+source .venv/bin/activate
+AI201_CACHE=0 PORT=5001 python serve.py   # the one start command; listens on :5001
+```
+
+PowerShell:
+```powershell
+.\.venv\Scripts\Activate.ps1
+$env:AI201_CACHE = "0"; $env:PORT = "5001"
+python serve.py                           # the one start command; listens on :5001
+```
+
+NOTE:
+- I use PORT 5001 instead of 5000 because macOS AirPlay Receiver occupies 5000.
+- `AI201_CACHE=0` turns the response cache off so each run is a real model call.
+- Every `/ask` request (including rejected and failed ones) appends one JSON line to `logs/requests.jsonl`.
+
+---
+
+**How to Use the App (Terminal 2):**
+
+**1. Health check**
+
+Bash:
 ```bash
 curl http://localhost:5001/health
 ```
+PowerShell:
+```powershell
+curl.exe http://localhost:5001/health
+```
+Expected: 
+```json
+{
+  "status":"ok"
+}
+```
 
-2. Ask for Clothes Fit
+**2. Happy case: Fit search**
 
-NOTE:
-- Ask it (single quotes, so `$30` isn't expanded by the shell)
-- Every `/ask` request appends one JSON line to `logs/requests.jsonl`.
-- `AI201_CACHE=0` turns the response cache off so each run is a real model call.
-
+Bash:
 ```bash
-curl -X POST http://localhost:5001/ask \
+curl -s \
+  -X POST http://localhost:5001/ask \
   -H 'Content-Type: application/json' \
   -d '{"query": "vintage graphic tee under $30"}'
+```
+PowerShell:
+```powershell
+curl.exe -s `
+  -X POST http://localhost:5001/ask `
+  -H "Content-Type: application/json" `
+  -d '{\"query\": \"vintage graphic tee under $30\"}'
+```
+Expected:
+- About 3 s
+- Log shows `completed`, 2 model calls, about 750 tokens
+
+**3. Happy case: Empty search** (valid request, no matches)
+
+Bash:
+```bash
+curl -s \
+  -X POST http://localhost:5001/ask \
+  -H 'Content-Type: application/json' \
+  -d '{"query": "designer ballgown size XXS under $5"}' | python -m json.tool
+```
+PowerShell:
+```powershell
+curl.exe -s `
+  -X POST http://localhost:5001/ask `
+  -H "Content-Type: application/json" `
+  -d '{\"query\": \"designer ballgown size XXS under $5\"}'
+```
+Expected: 
+- Stops before the model is called,
+- Log shows `stopped` with 0 tokens; the response is still HTTP 200)
+```json
+{
+  "error": "Nothing matched \"designer ballgown\", size XXS, under $5. Try ...", 
+  "fit_card": null, 
+  ...
+}
+```
+
+NOTE:
+- In PowerShell, use `curl.exe` (plain `curl` is an alias for `Invoke-WebRequest` and
+behaves differently). 
+- JSON is wrapped in single quotes so `$30` isn't expanded, and the inner double quotes are escaped as `\"` because Windows PowerShell 5.1 strips them when passing arguments to native programs.
+
+**4. Failure case: Missing `query` field** (empty JSON object)
+
+Bash:
+```bash
+curl -s -i \
+  -X POST http://localhost:5001/ask \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+PowerShell:
+```powershell
+curl.exe -s -i `
+  -X POST http://localhost:5001/ask `
+  -H "Content-Type: application/json" `
+  -d '{}'
+```
+
+**5. Failure case: Blank query** (whitespace only)
+
+Bash:
+```bash
+curl -s -i \
+  -X POST http://localhost:5001/ask \
+  -H 'Content-Type: application/json' \
+  -d '{"query": "   "}'
+```
+PowerShell:
+```powershell
+curl.exe -s -i `
+  -X POST http://localhost:5001/ask `
+  -H "Content-Type: application/json" `
+  -d '{\"query\": \"   \"}'
+```
+
+**6. Failure case: Malformed JSON body** (not object type)
+
+Bash:
+```bash
+curl -s -i \
+  -X POST http://localhost:5001/ask \
+  -H 'Content-Type: application/json' \
+  -d 'not json'
+```
+PowerShell:
+```powershell
+curl.exe -s -i `
+  -X POST http://localhost:5001/ask `
+  -H "Content-Type: application/json" `
+  -d 'not json'
+```
+
+**7. Wrong Content-Type** (valid JSON text sent without the JSON header)
+
+Bash:
+```bash
+curl -s -i \
+  -X POST http://localhost:5001/ask \
+  -d '{"query":"tee"}'
+```
+PowerShell:
+```powershell
+curl.exe -s -i `
+  -X POST http://localhost:5001/ask `
+  -d '{\"query\":\"tee\"}'
+```
+NOTE:
+- (`curl.exe` sends `application/x-www-form-urlencoded` by default, so Flask does not parse it as JSON.)
+
+Expected output for cases 4 to 7:
+```
+HTTP/1.1 400 BAD REQUEST
+...
+{
+  "error" : "Send JSON with a 'query' field, e.g. {\"query\": \"vintage graphic tee under $30\"}"
+}
+```
+
+**8. Wrong HTTP method** (GET on a POST-only route)
+
+Bash:
+```bash
+curl -s -i http://localhost:5001/ask
+```
+PowerShell:
+```powershell
+curl.exe -s -i http://localhost:5001/ask
+```
+Expected: `HTTP/1.1 405 METHOD NOT ALLOWED`
+
+**9. Unknown route** (Route does not exist)
+
+Bash:
+```bash
+curl -s -i http://localhost:5001/nope
+```
+PowerShell:
+```powershell
+curl.exe -s -i http://localhost:5001/nope
+```
+Expected: `HTTP/1.1 404 NOT FOUND`
+
+**What the log shows for a rejected request (cases 4 to 7):**
+
+```json
+{
+  "ts": "...", 
+  "id": "...", 
+  "query": null, 
+  "http_status": 400, 
+  "outcome": "rejected", 
+  "error": "missing or empty 'query'", 
+  "output": null, 
+  "duration_ms": 0, 
+  "model_calls": 0, 
+  "tokens": 0, 
+  "waited_ms": 0
+}
 ```
 
 ---
 
 **How to Run the Logging Visualizer App:**
 
-```bash
+```
 streamlit run log_viewer.py
 ```
