@@ -149,6 +149,7 @@ def run_agent(query: str, wardrobe: dict) -> dict:
         )
     except ModelUnavailable as exc:
         session["error"] = _model_unavailable_message(exc)
+        session["model_unavailable"] = True  # serve.py reads this: a model outage is a 500, not a 200
         trace.step("suggest_outfit", inputs=session["selected_item"],
                    note="model unavailable, stopping")
         return session
@@ -176,6 +177,7 @@ def run_agent(query: str, wardrobe: dict) -> dict:
         )
     except ModelUnavailable as exc:
         session["error"] = _model_unavailable_message(exc)
+        session["model_unavailable"] = True  # serve.py reads this: a model outage is a 500, not a 200
         trace.step("create_fit_card", note="model unavailable, stopping")
         return session
     trace.step(

@@ -44,6 +44,7 @@ from datetime import datetime, timezone
 import config  # noqa: F401
 
 from flask import Flask, jsonify, request
+from werkzeug.exceptions import HTTPException
 
 import generate
 from agent import run_agent
@@ -71,6 +72,9 @@ def _log(record: dict) -> None:
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
+
+def _new_request_id() -> str:
+    return uuid.uuid4().hex[:8]
 
 # ── one request at a time ─────────────────────────────────────────────────────
 # Here's why this exists.
@@ -114,10 +118,30 @@ def _now() -> str:
 _one_at_a_time = threading.Lock()
 
 
+@app.errorhandler(HTTPException)
+def _log_http_error(exc: HTTPException):
+    """
+    404 (unknown route) and 405 (wrong method) are raised by Flask's router
+    before ask() runs, so ask()'s logging never sees them. They are the caller's
+    mistake, so they are logged as `rejected`, with the real status code.
+    """
+    started = time.perf_counter()
+    _log({
+        "ts": _now(), "id": _new_request_id(),
+        "query": None, "http_status": exc.code,
+        "outcome": "rejected", "error": f"{exc.code} {exc.name}: {request.method} {request.path}",
+        "output": None, "duration_ms": round((time.perf_counter() - started) * 1000),
+        "model_calls": 0, "tokens": 0, "waited_ms": 0
+    })
+    return jsonify({"error": f"{exc.code} {exc.name}"}), exc.code
+
+
 @app.get("/health")
 def health():
     """Is the server awake? A host pings something like this to find out."""
-    return jsonify({"status": "ok"})
+    return jsonify({
+        "status": "ok"
+    })
 
 
 @app.post("/ask")
@@ -131,20 +155,27 @@ def ask():
     Out:  the session dict from run_agent(), as JSON.
     """
     started = time.perf_counter()
-    request_id = uuid.uuid4().hex[:8]
     payload = request.get_json(silent=True) or {}
     query = (payload.get("query") or "").strip()
     if not query:
         # 400 rather than a stack trace: the caller can act on this one.
-        msg = ("Send JSON with a 'query' field, e.g. "
-               '{"query": "vintage graphic tee under $30"}')
-        _log({"ts": _now(), "id": request_id, "query": None, "http_status": 400,
-              "outcome": "rejected", "error": "missing or empty 'query'",
-              "output": None, "duration_ms": round((time.perf_counter() - started) * 1000),
-              "model_calls": 0, "tokens": 0, "waited_ms": 0})
-        return jsonify({"error": msg}), 400
+        msg = (
+            "Send JSON with a 'query' field, e.g. "
+            '{"query": "vintage graphic tee under $30"}'
+        )
+        _log({
+            "ts": _now(), "id": _new_request_id(), 
+            "query": None, "http_status": 400,
+            "outcome": "rejected", "error": "missing or empty 'query'",
+            "output": None, "duration_ms": round((time.perf_counter() - started) * 1000),
+            "model_calls": 0, "tokens": 0, "waited_ms": 0
+        })
+        return (
+            jsonify({"error": msg}), 
+            400
+        )
 
-    wardrobe = payload.get("wardrobe")
+    wardrobe = payload.get("wardrobe", None)
     if not isinstance(wardrobe, dict):
         wardrobe = get_example_wardrobe()
 
@@ -176,24 +207,38 @@ def ask():
 
     waited_ms = round((run_start - wait_start) * 1000)
 
+    # The agent catches a model outage (bad key, no network) and returns a
+    # session with an error string, which would otherwise be logged as `stopped`
+    # with a 200 and look like "nothing matched". It is a server-side failure.
+    if failure is None and session and session.get("model_unavailable"):
+        failure = f"ModelUnavailable: {session.get('error')}"
+
     # Outside the lock: building a response is not work the next caller should
     # be waiting on.
     if failure is not None:
-        _log({"ts": _now(), "id": request_id, "query": query, "http_status": 500,
-              "outcome": "crashed", "error": failure, "output": None,
-              "duration_ms": run_ms, "model_calls": calls, "tokens": tokens,
-              "waited_ms": waited_ms})
-        return jsonify({"error": failure}), 500
+        _log({
+            "ts": _now(), "id": _new_request_id(), 
+            "query": query, "http_status": 500,
+            "outcome": "crashed", "error": failure, 
+            "output": None, "duration_ms": run_ms, 
+            "model_calls": calls, "tokens": tokens, "waited_ms": waited_ms
+        })
+        return (
+            jsonify({"error": failure}), 
+            500
+        )
 
-    if session.get("error"):
+    if session and session.get("error"):
         outcome, output = "stopped", session["error"]
     else:
         outcome, output = "completed", session.get("fit_card")
-    _log({"ts": _now(), "id": request_id, "query": query, "http_status": 200,
-          "outcome": outcome, "error": session.get("error"), "output": output,
-          "found_item": (session.get("selected_item") or {}).get("title"),
-          "duration_ms": run_ms, "model_calls": calls, "tokens": tokens,
-          "waited_ms": waited_ms})
+    _log({
+        "ts": _now(), "id": _new_request_id(), 
+        "query": query, "http_status": 200,
+        "outcome": outcome, "error": session.get("error"), 
+        "output": output, "found_item": (session.get("selected_item") or {}).get("title"), "duration_ms": run_ms, 
+        "model_calls": calls, "tokens": tokens,"waited_ms": waited_ms
+    })
     return jsonify(session)
 
 
