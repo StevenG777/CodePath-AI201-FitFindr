@@ -131,3 +131,76 @@ through.
      A number you missed stays where it is, gets diagnosed, and gets a fix
      attempted. That's where the points are.
      ───────────────────────────────────────────────────────────────────────── -->
+
+
+---
+
+# Capstone criteria — FitFindr (Shape A: deploy and instrument)
+
+Written before any capstone results exist. Applies to `serve.py` and
+`logs/requests.jsonl`. Criteria 1–5 are all about the new operational layer.
+
+A **trial** is one pass through the whole set of requests named in the criterion,
+with nothing changed between trials. Three trials per criterion.
+
+## 1. Every request that reaches the server leaves one log line, including 404 and 405
+
+**Target:** In each trial, send one request to an unknown route (`GET /nope`), one
+`GET /ask`, and one `POST /ask` with `{}`. After each, `logs/requests.jsonl` has
+gained exactly one new line, and that line has `outcome` = `rejected` and
+`http_status` = 404, 405 and 400 respectively. 3 of 3 requests per trial, in all 3 trials.
+
+**Why this number:** Either a request is recorded or it isn't, so no misses are
+acceptable. A rejected request that leaves no record shows up only as an absence,
+and the log is what I use to find failures. They are rejected, not crashed, because
+they are the client's mistake.
+
+## 2. Each outcome writes exactly the fields I documented
+
+**Target:** In each trial, send one request per outcome (`rejected`, `crashed`,
+`stopped`, `completed`) and compare the new line's field names. `rejected` and
+`crashed` have exactly: `ts`, `id`, `query`, `http_status`, `outcome`, `error`,
+`output`, `duration_ms`, `model_calls`, `tokens`, `waited_ms`. `stopped` and
+`completed` have those plus `found_item`. 4 of 4 outcomes per trial, in all 3 trials.
+
+**Why this number:** The field set is fixed by the code, so there's no variation to
+allow for. `crashed` has never been triggered in my log, so it is the likeliest to
+be wrong. I'll trigger it deliberately (e.g. an invalid API key).
+
+## 3. The outcome decides the status code and the number of model calls
+
+**Target:** For the same four requests, `rejected` → `http_status` 400 (or 404/405
+for unknown route / wrong method) and `model_calls` 0; `crashed` → 500; `stopped` →
+200 and `model_calls` 0; `completed` → 200 and `model_calls` 2. 4 of 4 per trial, in
+all 3 trials.
+
+**Why this number:** The code fixes these values, so a miss means a real bug rather
+than noise. `model_calls` also confirms that stopped and rejected requests never
+reach the model, which is what keeps them free.
+
+## 4. Completed requests finish inside a latency limit taken from my own baseline
+
+**Target:** Of 10 `completed` requests (cache off, 10 different queries), at least 8
+have `duration_ms` at or below X, where X = Q3 + 1.5 × IQR of `duration_ms` over the
+completed runs in my baseline cost measurement. X is: ______ ms (filled in from the
+baseline before trials start). Stopped and rejected requests are excluded.
+
+**Why this number:** Failure paths don't call the model, so their time is
+deterministic code and says nothing about latency. For completed runs I used a
+standard outlier rule on my own data instead of a guess. 8 of 10 rather than 10 of
+10 because my existing log has slow runs (44 s, 31 s, 19 s) with no known cause,
+and I allow 2 per 10 for variation.
+
+## 5. A log that can't be written doesn't break the request
+
+**Target:** With the log file made unwritable (file size limit or a tiny disk,
+e.g. `ulimit -f 8` before starting the server, then enough requests to fill it), send
+5 `stopped`-outcome requests (`"wool sweater size L under $50"`). All 5 return HTTP
+200 with the normal response body, and stderr shows `could not write log` for each. 5
+of 5 per trial, in all 3 trials.
+
+**Why this number:** The service exists to give a recommendation; logging is
+supplementary, so a failed write must never turn into a failed response. It's either
+handled or it isn't. I only test the permission and size-limit cases, not a real full
+disk. A lost record is expected here, and the criterion tests that the caller isn't
+affected.
