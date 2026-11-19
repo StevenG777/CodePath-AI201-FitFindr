@@ -1,0 +1,633 @@
+{
+  "c1": [
+    [
+      1,
+      3,
+      [
+        {
+          "case": "GET /nope",
+          "response": 404,
+          "new_lines": 0,
+          "record": null,
+          "pass": false
+        },
+        {
+          "case": "GET /ask",
+          "response": 405,
+          "new_lines": 0,
+          "record": null,
+          "pass": false
+        },
+        {
+          "case": "POST /ask",
+          "response": 400,
+          "new_lines": 1,
+          "record": {
+            "ts": "2026-11-19T10:17:28.439+00:00",
+            "id": "a64e425d",
+            "query": null,
+            "http_status": 400,
+            "outcome": "rejected",
+            "error": "missing or empty 'query'",
+            "output": null,
+            "duration_ms": 0,
+            "model_calls": 0,
+            "tokens": 0,
+            "waited_ms": 0
+          },
+          "pass": true
+        }
+      ]
+    ],
+    [
+      1,
+      3,
+      [
+        {
+          "case": "GET /nope",
+          "response": 404,
+          "new_lines": 0,
+          "record": null,
+          "pass": false
+        },
+        {
+          "case": "GET /ask",
+          "response": 405,
+          "new_lines": 0,
+          "record": null,
+          "pass": false
+        },
+        {
+          "case": "POST /ask",
+          "response": 400,
+          "new_lines": 1,
+          "record": {
+            "ts": "2026-11-19T10:19:03.483+00:00",
+            "id": "e5a87ac2",
+            "query": null,
+            "http_status": 400,
+            "outcome": "rejected",
+            "error": "missing or empty 'query'",
+            "output": null,
+            "duration_ms": 0,
+            "model_calls": 0,
+            "tokens": 0,
+            "waited_ms": 0
+          },
+          "pass": true
+        }
+      ]
+    ],
+    [
+      1,
+      3,
+      [
+        {
+          "case": "GET /nope",
+          "response": 404,
+          "new_lines": 0,
+          "record": null,
+          "pass": false
+        },
+        {
+          "case": "GET /ask",
+          "response": 405,
+          "new_lines": 0,
+          "record": null,
+          "pass": false
+        },
+        {
+          "case": "POST /ask",
+          "response": 400,
+          "new_lines": 1,
+          "record": {
+            "ts": "2026-11-19T10:20:56.659+00:00",
+            "id": "cbed7023",
+            "query": null,
+            "http_status": 400,
+            "outcome": "rejected",
+            "error": "missing or empty 'query'",
+            "output": null,
+            "duration_ms": 0,
+            "model_calls": 0,
+            "tokens": 0,
+            "waited_ms": 0
+          },
+          "pass": true
+        }
+      ]
+    ]
+  ],
+  "c2": [
+    [
+      3,
+      4,
+      [
+        {
+          "outcome": "rejected",
+          "got_outcome": "rejected",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "outcome": "crashed",
+          "got_outcome": "stopped",
+          "missing": [],
+          "extra": [
+            "found_item"
+          ],
+          "pass": false
+        },
+        {
+          "outcome": "stopped",
+          "got_outcome": "stopped",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "outcome": "completed",
+          "got_outcome": "completed",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        }
+      ]
+    ],
+    [
+      3,
+      4,
+      [
+        {
+          "outcome": "rejected",
+          "got_outcome": "rejected",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "outcome": "crashed",
+          "got_outcome": "stopped",
+          "missing": [],
+          "extra": [
+            "found_item"
+          ],
+          "pass": false
+        },
+        {
+          "outcome": "stopped",
+          "got_outcome": "stopped",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "outcome": "completed",
+          "got_outcome": "completed",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        }
+      ]
+    ],
+    [
+      3,
+      4,
+      [
+        {
+          "outcome": "rejected",
+          "got_outcome": "rejected",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "outcome": "crashed",
+          "got_outcome": "stopped",
+          "missing": [],
+          "extra": [
+            "found_item"
+          ],
+          "pass": false
+        },
+        {
+          "outcome": "stopped",
+          "got_outcome": "stopped",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "outcome": "completed",
+          "got_outcome": "completed",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        }
+      ]
+    ]
+  ],
+  "c3": [
+    [
+      3,
+      4,
+      [
+        {
+          "outcome": "rejected",
+          "http_status": 400,
+          "model_calls": 0,
+          "pass": true
+        },
+        {
+          "outcome": "crashed",
+          "http_status": 200,
+          "model_calls": 1,
+          "pass": false
+        },
+        {
+          "outcome": "stopped",
+          "http_status": 200,
+          "model_calls": 0,
+          "pass": true
+        },
+        {
+          "outcome": "completed",
+          "http_status": 200,
+          "model_calls": 2,
+          "pass": true
+        }
+      ]
+    ],
+    [
+      3,
+      4,
+      [
+        {
+          "outcome": "rejected",
+          "http_status": 400,
+          "model_calls": 0,
+          "pass": true
+        },
+        {
+          "outcome": "crashed",
+          "http_status": 200,
+          "model_calls": 1,
+          "pass": false
+        },
+        {
+          "outcome": "stopped",
+          "http_status": 200,
+          "model_calls": 0,
+          "pass": true
+        },
+        {
+          "outcome": "completed",
+          "http_status": 200,
+          "model_calls": 2,
+          "pass": true
+        }
+      ]
+    ],
+    [
+      3,
+      4,
+      [
+        {
+          "outcome": "rejected",
+          "http_status": 400,
+          "model_calls": 0,
+          "pass": true
+        },
+        {
+          "outcome": "crashed",
+          "http_status": 200,
+          "model_calls": 1,
+          "pass": false
+        },
+        {
+          "outcome": "stopped",
+          "http_status": 200,
+          "model_calls": 0,
+          "pass": true
+        },
+        {
+          "outcome": "completed",
+          "http_status": 200,
+          "model_calls": 2,
+          "pass": true
+        }
+      ]
+    ]
+  ],
+  "c4": [
+    [
+      0,
+      10,
+      [
+        {
+          "query": "vintage graphic tee under $30",
+          "outcome": "completed",
+          "duration_ms": 14895,
+          "tokens": 772
+        },
+        {
+          "query": "black boots under $70",
+          "outcome": "completed",
+          "duration_ms": 6303,
+          "tokens": 801
+        },
+        {
+          "query": "denim jacket size M",
+          "outcome": "completed",
+          "duration_ms": 5932,
+          "tokens": 776
+        },
+        {
+          "query": "floral summer dress under $40",
+          "outcome": "completed",
+          "duration_ms": 10424,
+          "tokens": 709
+        },
+        {
+          "query": "leather belt",
+          "outcome": "completed",
+          "duration_ms": 5065,
+          "tokens": 650
+        },
+        {
+          "query": "sneakers size 9",
+          "outcome": "completed",
+          "duration_ms": 10598,
+          "tokens": 701
+        },
+        {
+          "query": "corduroy pants",
+          "outcome": "completed",
+          "duration_ms": 9139,
+          "tokens": 764
+        },
+        {
+          "query": "silk scarf",
+          "outcome": "completed",
+          "duration_ms": 7941,
+          "tokens": 716
+        },
+        {
+          "query": "levi's jeans",
+          "outcome": "completed",
+          "duration_ms": 6331,
+          "tokens": 817
+        },
+        {
+          "query": "bomber jacket",
+          "outcome": "completed",
+          "duration_ms": 6045,
+          "tokens": 686
+        }
+      ]
+    ],
+    [
+      0,
+      10,
+      [
+        {
+          "query": "vintage graphic tee under $30",
+          "outcome": "completed",
+          "duration_ms": 12828,
+          "tokens": 756
+        },
+        {
+          "query": "black boots under $70",
+          "outcome": "completed",
+          "duration_ms": 9100,
+          "tokens": 725
+        },
+        {
+          "query": "denim jacket size M",
+          "outcome": "completed",
+          "duration_ms": 6629,
+          "tokens": 893
+        },
+        {
+          "query": "floral summer dress under $40",
+          "outcome": "completed",
+          "duration_ms": 7524,
+          "tokens": 776
+        },
+        {
+          "query": "leather belt",
+          "outcome": "completed",
+          "duration_ms": 8511,
+          "tokens": 722
+        },
+        {
+          "query": "sneakers size 9",
+          "outcome": "completed",
+          "duration_ms": 6983,
+          "tokens": 709
+        },
+        {
+          "query": "corduroy pants",
+          "outcome": "completed",
+          "duration_ms": 18137,
+          "tokens": 755
+        },
+        {
+          "query": "silk scarf",
+          "outcome": "completed",
+          "duration_ms": 14820,
+          "tokens": 737
+        },
+        {
+          "query": "levi's jeans",
+          "outcome": "completed",
+          "duration_ms": 7869,
+          "tokens": 709
+        },
+        {
+          "query": "bomber jacket",
+          "outcome": "completed",
+          "duration_ms": 6515,
+          "tokens": 708
+        }
+      ]
+    ],
+    [
+      0,
+      10,
+      [
+        {
+          "query": "vintage graphic tee under $30",
+          "outcome": "completed",
+          "duration_ms": 11197,
+          "tokens": 695
+        },
+        {
+          "query": "black boots under $70",
+          "outcome": "completed",
+          "duration_ms": 9303,
+          "tokens": 774
+        },
+        {
+          "query": "denim jacket size M",
+          "outcome": "completed",
+          "duration_ms": 10862,
+          "tokens": 729
+        },
+        {
+          "query": "floral summer dress under $40",
+          "outcome": "completed",
+          "duration_ms": 18309,
+          "tokens": 703
+        },
+        {
+          "query": "leather belt",
+          "outcome": "completed",
+          "duration_ms": 17907,
+          "tokens": 719
+        },
+        {
+          "query": "sneakers size 9",
+          "outcome": "completed",
+          "duration_ms": 10219,
+          "tokens": 687
+        },
+        {
+          "query": "corduroy pants",
+          "outcome": "completed",
+          "duration_ms": 9214,
+          "tokens": 758
+        },
+        {
+          "query": "silk scarf",
+          "outcome": "completed",
+          "duration_ms": 12844,
+          "tokens": 911
+        },
+        {
+          "query": "levi's jeans",
+          "outcome": "completed",
+          "duration_ms": 11951,
+          "tokens": 727
+        },
+        {
+          "query": "bomber jacket",
+          "outcome": "completed",
+          "duration_ms": 12499,
+          "tokens": 738
+        }
+      ]
+    ]
+  ],
+  "c5": [
+    [
+      5,
+      5,
+      [
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        }
+      ]
+    ],
+    [
+      5,
+      5,
+      [
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        }
+      ]
+    ],
+    [
+      5,
+      5,
+      [
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        }
+      ]
+    ]
+  ]
+}
