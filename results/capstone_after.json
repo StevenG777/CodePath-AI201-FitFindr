@@ -1,0 +1,701 @@
+{
+  "c1": [
+    [
+      3,
+      3,
+      [
+        {
+          "case": "GET /nope",
+          "response": 404,
+          "new_lines": 1,
+          "record": {
+            "ts": "2026-11-19T10:29:31.584+00:00",
+            "id": "63e72c57",
+            "query": null,
+            "http_status": 404,
+            "outcome": "rejected",
+            "error": "404 Not Found: GET /nope",
+            "output": null,
+            "duration_ms": 0,
+            "model_calls": 0,
+            "tokens": 0,
+            "waited_ms": 0
+          },
+          "pass": true
+        },
+        {
+          "case": "GET /ask",
+          "response": 405,
+          "new_lines": 1,
+          "record": {
+            "ts": "2026-11-19T10:29:31.588+00:00",
+            "id": "8abda6a7",
+            "query": null,
+            "http_status": 405,
+            "outcome": "rejected",
+            "error": "405 Method Not Allowed: GET /ask",
+            "output": null,
+            "duration_ms": 0,
+            "model_calls": 0,
+            "tokens": 0,
+            "waited_ms": 0
+          },
+          "pass": true
+        },
+        {
+          "case": "POST /ask",
+          "response": 400,
+          "new_lines": 1,
+          "record": {
+            "ts": "2026-11-19T10:29:31.591+00:00",
+            "id": "79ffa400",
+            "query": null,
+            "http_status": 400,
+            "outcome": "rejected",
+            "error": "missing or empty 'query'",
+            "output": null,
+            "duration_ms": 0,
+            "model_calls": 0,
+            "tokens": 0,
+            "waited_ms": 0
+          },
+          "pass": true
+        }
+      ]
+    ],
+    [
+      3,
+      3,
+      [
+        {
+          "case": "GET /nope",
+          "response": 404,
+          "new_lines": 1,
+          "record": {
+            "ts": "2026-11-19T10:30:57.384+00:00",
+            "id": "a3477ccd",
+            "query": null,
+            "http_status": 404,
+            "outcome": "rejected",
+            "error": "404 Not Found: GET /nope",
+            "output": null,
+            "duration_ms": 0,
+            "model_calls": 0,
+            "tokens": 0,
+            "waited_ms": 0
+          },
+          "pass": true
+        },
+        {
+          "case": "GET /ask",
+          "response": 405,
+          "new_lines": 1,
+          "record": {
+            "ts": "2026-11-19T10:30:57.388+00:00",
+            "id": "b764be88",
+            "query": null,
+            "http_status": 405,
+            "outcome": "rejected",
+            "error": "405 Method Not Allowed: GET /ask",
+            "output": null,
+            "duration_ms": 0,
+            "model_calls": 0,
+            "tokens": 0,
+            "waited_ms": 0
+          },
+          "pass": true
+        },
+        {
+          "case": "POST /ask",
+          "response": 400,
+          "new_lines": 1,
+          "record": {
+            "ts": "2026-11-19T10:30:57.391+00:00",
+            "id": "8914e3b9",
+            "query": null,
+            "http_status": 400,
+            "outcome": "rejected",
+            "error": "missing or empty 'query'",
+            "output": null,
+            "duration_ms": 0,
+            "model_calls": 0,
+            "tokens": 0,
+            "waited_ms": 0
+          },
+          "pass": true
+        }
+      ]
+    ],
+    [
+      3,
+      3,
+      [
+        {
+          "case": "GET /nope",
+          "response": 404,
+          "new_lines": 1,
+          "record": {
+            "ts": "2026-11-19T10:32:40.659+00:00",
+            "id": "de84171c",
+            "query": null,
+            "http_status": 404,
+            "outcome": "rejected",
+            "error": "404 Not Found: GET /nope",
+            "output": null,
+            "duration_ms": 0,
+            "model_calls": 0,
+            "tokens": 0,
+            "waited_ms": 0
+          },
+          "pass": true
+        },
+        {
+          "case": "GET /ask",
+          "response": 405,
+          "new_lines": 1,
+          "record": {
+            "ts": "2026-11-19T10:32:40.664+00:00",
+            "id": "19d5cc83",
+            "query": null,
+            "http_status": 405,
+            "outcome": "rejected",
+            "error": "405 Method Not Allowed: GET /ask",
+            "output": null,
+            "duration_ms": 0,
+            "model_calls": 0,
+            "tokens": 0,
+            "waited_ms": 0
+          },
+          "pass": true
+        },
+        {
+          "case": "POST /ask",
+          "response": 400,
+          "new_lines": 1,
+          "record": {
+            "ts": "2026-11-19T10:32:40.668+00:00",
+            "id": "3e3aebcd",
+            "query": null,
+            "http_status": 400,
+            "outcome": "rejected",
+            "error": "missing or empty 'query'",
+            "output": null,
+            "duration_ms": 0,
+            "model_calls": 0,
+            "tokens": 0,
+            "waited_ms": 0
+          },
+          "pass": true
+        }
+      ]
+    ]
+  ],
+  "c2": [
+    [
+      4,
+      4,
+      [
+        {
+          "outcome": "rejected",
+          "got_outcome": "rejected",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "outcome": "crashed",
+          "got_outcome": "crashed",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "outcome": "stopped",
+          "got_outcome": "stopped",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "outcome": "completed",
+          "got_outcome": "completed",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        }
+      ]
+    ],
+    [
+      4,
+      4,
+      [
+        {
+          "outcome": "rejected",
+          "got_outcome": "rejected",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "outcome": "crashed",
+          "got_outcome": "crashed",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "outcome": "stopped",
+          "got_outcome": "stopped",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "outcome": "completed",
+          "got_outcome": "completed",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        }
+      ]
+    ],
+    [
+      3,
+      4,
+      [
+        {
+          "outcome": "rejected",
+          "got_outcome": "rejected",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "outcome": "crashed",
+          "got_outcome": "crashed",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "outcome": "stopped",
+          "got_outcome": "stopped",
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "outcome": "completed",
+          "got_outcome": "crashed",
+          "missing": [
+            "found_item"
+          ],
+          "extra": [],
+          "pass": false
+        }
+      ]
+    ]
+  ],
+  "c3": [
+    [
+      4,
+      4,
+      [
+        {
+          "outcome": "rejected",
+          "http_status": 400,
+          "model_calls": 0,
+          "pass": true
+        },
+        {
+          "outcome": "crashed",
+          "http_status": 500,
+          "model_calls": 1,
+          "pass": true
+        },
+        {
+          "outcome": "stopped",
+          "http_status": 200,
+          "model_calls": 0,
+          "pass": true
+        },
+        {
+          "outcome": "completed",
+          "http_status": 200,
+          "model_calls": 2,
+          "pass": true
+        }
+      ]
+    ],
+    [
+      4,
+      4,
+      [
+        {
+          "outcome": "rejected",
+          "http_status": 400,
+          "model_calls": 0,
+          "pass": true
+        },
+        {
+          "outcome": "crashed",
+          "http_status": 500,
+          "model_calls": 1,
+          "pass": true
+        },
+        {
+          "outcome": "stopped",
+          "http_status": 200,
+          "model_calls": 0,
+          "pass": true
+        },
+        {
+          "outcome": "completed",
+          "http_status": 200,
+          "model_calls": 2,
+          "pass": true
+        }
+      ]
+    ],
+    [
+      3,
+      4,
+      [
+        {
+          "outcome": "rejected",
+          "http_status": 400,
+          "model_calls": 0,
+          "pass": true
+        },
+        {
+          "outcome": "crashed",
+          "http_status": 500,
+          "model_calls": 1,
+          "pass": true
+        },
+        {
+          "outcome": "stopped",
+          "http_status": 200,
+          "model_calls": 0,
+          "pass": true
+        },
+        {
+          "outcome": "completed",
+          "http_status": 500,
+          "model_calls": 2,
+          "pass": false
+        }
+      ]
+    ]
+  ],
+  "c4": [
+    [
+      0,
+      10,
+      [
+        {
+          "query": "vintage graphic tee under $30",
+          "outcome": "completed",
+          "duration_ms": 8818,
+          "tokens": 734
+        },
+        {
+          "query": "black boots under $70",
+          "outcome": "crashed",
+          "duration_ms": 3096,
+          "tokens": 499
+        },
+        {
+          "query": "denim jacket size M",
+          "outcome": "crashed",
+          "duration_ms": 977,
+          "tokens": 0
+        },
+        {
+          "query": "floral summer dress under $40",
+          "outcome": "crashed",
+          "duration_ms": 4567,
+          "tokens": 470
+        },
+        {
+          "query": "leather belt",
+          "outcome": "crashed",
+          "duration_ms": 903,
+          "tokens": 0
+        },
+        {
+          "query": "sneakers size 9",
+          "outcome": "completed",
+          "duration_ms": 9413,
+          "tokens": 701
+        },
+        {
+          "query": "corduroy pants",
+          "outcome": "completed",
+          "duration_ms": 15512,
+          "tokens": 692
+        },
+        {
+          "query": "silk scarf",
+          "outcome": "completed",
+          "duration_ms": 11143,
+          "tokens": 743
+        },
+        {
+          "query": "levi's jeans",
+          "outcome": "completed",
+          "duration_ms": 7943,
+          "tokens": 806
+        },
+        {
+          "query": "bomber jacket",
+          "outcome": "crashed",
+          "duration_ms": 10556,
+          "tokens": 469
+        }
+      ]
+    ],
+    [
+      0,
+      10,
+      [
+        {
+          "query": "vintage graphic tee under $30",
+          "outcome": "completed",
+          "duration_ms": 15858,
+          "tokens": 711
+        },
+        {
+          "query": "black boots under $70",
+          "outcome": "crashed",
+          "duration_ms": 5999,
+          "tokens": 449
+        },
+        {
+          "query": "denim jacket size M",
+          "outcome": "completed",
+          "duration_ms": 5452,
+          "tokens": 749
+        },
+        {
+          "query": "floral summer dress under $40",
+          "outcome": "completed",
+          "duration_ms": 9640,
+          "tokens": 710
+        },
+        {
+          "query": "leather belt",
+          "outcome": "crashed",
+          "duration_ms": 11506,
+          "tokens": 460
+        },
+        {
+          "query": "sneakers size 9",
+          "outcome": "crashed",
+          "duration_ms": 1252,
+          "tokens": 0
+        },
+        {
+          "query": "corduroy pants",
+          "outcome": "completed",
+          "duration_ms": 10084,
+          "tokens": 732
+        },
+        {
+          "query": "silk scarf",
+          "outcome": "completed",
+          "duration_ms": 9564,
+          "tokens": 778
+        },
+        {
+          "query": "levi's jeans",
+          "outcome": "completed",
+          "duration_ms": 9203,
+          "tokens": 769
+        },
+        {
+          "query": "bomber jacket",
+          "outcome": "completed",
+          "duration_ms": 16694,
+          "tokens": 791
+        }
+      ]
+    ],
+    [
+      1,
+      10,
+      [
+        {
+          "query": "vintage graphic tee under $30",
+          "outcome": "completed",
+          "duration_ms": 9441,
+          "tokens": 713
+        },
+        {
+          "query": "black boots under $70",
+          "outcome": "crashed",
+          "duration_ms": 7728,
+          "tokens": 483
+        },
+        {
+          "query": "denim jacket size M",
+          "outcome": "completed",
+          "duration_ms": 3920,
+          "tokens": 667
+        },
+        {
+          "query": "floral summer dress under $40",
+          "outcome": "crashed",
+          "duration_ms": 760,
+          "tokens": 0
+        },
+        {
+          "query": "leather belt",
+          "outcome": "crashed",
+          "duration_ms": 785,
+          "tokens": 0
+        },
+        {
+          "query": "sneakers size 9",
+          "outcome": "crashed",
+          "duration_ms": 762,
+          "tokens": 0
+        },
+        {
+          "query": "corduroy pants",
+          "outcome": "crashed",
+          "duration_ms": 604,
+          "tokens": 0
+        },
+        {
+          "query": "silk scarf",
+          "outcome": "completed",
+          "duration_ms": 10981,
+          "tokens": 760
+        },
+        {
+          "query": "levi's jeans",
+          "outcome": "completed",
+          "duration_ms": 24393,
+          "tokens": 719
+        },
+        {
+          "query": "bomber jacket",
+          "outcome": "completed",
+          "duration_ms": 9107,
+          "tokens": 687
+        }
+      ]
+    ]
+  ],
+  "c5": [
+    [
+      5,
+      5,
+      [
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        }
+      ]
+    ],
+    [
+      5,
+      5,
+      [
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        }
+      ]
+    ],
+    [
+      5,
+      5,
+      [
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        },
+        {
+          "status": 200,
+          "stderr_new": 1,
+          "log_lines_added": 0,
+          "pass": true
+        }
+      ]
+    ]
+  ]
+}
