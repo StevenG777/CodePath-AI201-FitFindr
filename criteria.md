@@ -182,8 +182,10 @@ reach the model, which is what keeps them free.
 
 **Target:** Of 10 `completed` requests (cache off, 10 different queries), at least 8
 have `duration_ms` at or below X, where X = Q3 + 1.5 × IQR of `duration_ms` over the
-completed runs in my baseline cost measurement. X is: ______ ms (filled in from the
-baseline before trials start). Stopped and rejected requests are excluded.
+completed runs in my baseline cost measurement. X is: 4533 ms (filled in from the
+baseline before trials start: the 8 completed runs in logs/requests.jsonl rows 1-5, 7-9 have
+duration_ms 2166, 2198, 2212, 2253, 2518, 2555, 3717, 44253; Q1 = 2205, Q3 = 3136, IQR = 931,
+Q3 + 1.5 x IQR = 4532.5, rounded up to 4533). Stopped and rejected requests are excluded.
 
 **Why this number:** Failure paths don't call the model, so their time is
 deterministic code and says nothing about latency. For completed runs I used a
